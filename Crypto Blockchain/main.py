@@ -4,7 +4,7 @@ import json
 import requests
 from flask import Flask, request, jsonify, Response
 
-# Define the blockchain name
+# Blockchain name
 blockchain_name = "Coin Ketut"
 
 class Block:
@@ -101,7 +101,6 @@ def get_blocks():
             "hash": block.hash
         }
         chain_to_send.append(block_data)
-    # Include the blockchain name in the response
     response_data = {
         "blockchain_name": blockchain_name,
         "chain": chain_to_send
