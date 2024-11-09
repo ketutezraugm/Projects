@@ -7,13 +7,14 @@ from flask import Flask, request, jsonify, Response
 # Blockchain name
 blockchain_name = "Coin Ketut"
 
+# Block class
 class Block:
     def __init__(self, index, timestamp, data, previous_hash):
         self.index = index
         self.timestamp = timestamp
         self.data = data
         self.previous_hash = previous_hash
-        self.hash = self.hash_block()
+        self.hash = self.hash_block()  # Create hash
 
     def hash_block(self):
         sha = hasher.sha256()
@@ -48,16 +49,36 @@ this_nodes_transactions = []
 peer_nodes = ["http://localhost:5001", "http://localhost:5002"]
 miner_address = "q3nf394hjg-random-miner-address-34nf3i4nflkn3oi"
 
+# New transaction
 @node.route('/txion', methods=['POST'])
 def transaction():
     new_txion = request.get_json()
+
+    # Validate the transaction format
+    if not new_txion:
+        return jsonify({"error": "Invalid JSON data"}), 400
+    required_fields = ["from", "to", "amount"]
+    for field in required_fields:
+        if field not in new_txion:
+            return jsonify({"error": f"Missing field: {field}"}), 400
+
+    # Validate field types
+    if not isinstance(new_txion["from"], str) or not isinstance(new_txion["to"], str):
+        return jsonify({"error": "Fields 'from' and 'to' must be strings"}), 400
+    if not isinstance(new_txion["amount"], (int, float)) or new_txion["amount"] <= 0:
+        return jsonify({"error": "'amount' must be a positive number"}), 400
+
+    # Append transaction to list if validation passes
     this_nodes_transactions.append(new_txion)
     print("New transaction")
     print("FROM: {}".format(new_txion['from']))
     print("TO: {}".format(new_txion['to']))
     print("AMOUNT: {}\n".format(new_txion['amount']))
-    return "Transaction submission successful\n"
 
+    return jsonify({"message": "Transaction submission successful"}), 201
+
+
+# Proof of work
 def proof_of_work(last_proof):
     if last_proof == 0:
         last_proof = 1
@@ -66,6 +87,7 @@ def proof_of_work(last_proof):
         incrementor += 1
     return incrementor
 
+# Mine new block
 @node.route('/mine', methods=['GET'])
 def mine():
     last_block = blockchain[-1]
@@ -90,6 +112,7 @@ def mine():
         "hash": last_block_hash
     }, indent=4) + "\n"
 
+# Get blockchain
 @node.route('/blocks', methods=['GET'])
 def get_blocks():
     chain_to_send = []
@@ -108,9 +131,11 @@ def get_blocks():
     response = Response(json.dumps(response_data, indent=4), mimetype='application/json')
     return response
 
+# Homepage
 @node.route('/', methods=['GET'])
 def home():
     return f"Welcome to {blockchain_name} Node! Available endpoints: /txion, /mine, /blocks"
 
+# Run app
 if __name__ == "__main__":
     node.run()
