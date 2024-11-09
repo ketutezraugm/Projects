@@ -54,7 +54,6 @@ miner_address = "q3nf394hjg-random-miner-address-34nf3i4nflkn3oi"
 def transaction():
     new_txion = request.get_json()
 
-    # Validate the transaction format
     if not new_txion:
         return jsonify({"error": "Invalid JSON data"}), 400
     required_fields = ["from", "to", "amount"]
@@ -62,13 +61,11 @@ def transaction():
         if field not in new_txion:
             return jsonify({"error": f"Missing field: {field}"}), 400
 
-    # Validate field types
     if not isinstance(new_txion["from"], str) or not isinstance(new_txion["to"], str):
         return jsonify({"error": "Fields 'from' and 'to' must be strings"}), 400
     if not isinstance(new_txion["amount"], (int, float)) or new_txion["amount"] <= 0:
         return jsonify({"error": "'amount' must be a positive number"}), 400
 
-    # Append transaction to list if validation passes
     this_nodes_transactions.append(new_txion)
     print("New transaction")
     print("FROM: {}".format(new_txion['from']))
