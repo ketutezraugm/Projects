@@ -136,3 +136,9 @@ def home():
 # Run app
 if __name__ == "__main__":
     node.run()
+
+# Things to improve :
+# larger blockchain
+# larger users
+# enter the dex market
+# smart money contract
